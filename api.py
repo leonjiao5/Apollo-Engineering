@@ -13,7 +13,6 @@ def get_db_connection():
     cx.row_factory = sqlite3.Row  # Enable dictionary-like row access
     return cx
 
-
 """
 Check if the fields in data match the expected format. Returns a list of errors, if any.
 """
@@ -39,7 +38,8 @@ def check_fields(data):
         errors.append("'description' must be a string.")
 
     return errors
-        
+
+
 """
 Return a JSON representation of all records in the Vehicle table
 """
@@ -60,11 +60,11 @@ def create_vehicle():
     try: 
         data = request.get_json(force=True)
     except Exception:
-        return jsonify({"error: Bad Request"}), 400
+        return jsonify({"error": "Bad Request"}), 400
 
     errors = check_fields(data)
     if errors:
-        return jsonify({"error: null/malformed attributes": errors}), 422
+        return jsonify({"errors": errors}), 422
 
     vin = str(uuid.uuid4())
     try:
@@ -115,7 +115,7 @@ def update_vehicle(vin):
     try: 
         data = request.get_json(force=True)
     except Exception:
-        return jsonify({"error: Bad Request"}), 400
+        return jsonify({"error": "Bad Request"}), 400
 
     cx = get_db_connection()
     vehicle = cx.execute("SELECT * FROM Vehicle WHERE vin = ?", (vin,)).fetchone()
@@ -125,7 +125,7 @@ def update_vehicle(vin):
 
     errors = check_fields(data)
     if errors:
-        return jsonify({"error: null/malformed attributes": errors}), 422
+        return jsonify({"errors": errors}), 422
 
     try:
         cx.execute(
